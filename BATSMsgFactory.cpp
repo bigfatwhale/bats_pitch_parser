@@ -33,10 +33,11 @@ using DisableIf = enable_if_t<
         !( is_same_v<T, BATSAddOrderMsg> | is_same_v<T, BATSTradeMsg> ),
         shared_ptr<BATSMessageBase> >;
 
+template <typename Iter>
 struct DecodeHelper {
 
     template<typename DecodeT, typename MsgT> static
-    shared_ptr<BATSMessageBase> parse(const char* start, const char* end, DecodeT &decoder )
+    shared_ptr<BATSMessageBase> parse(Iter& start, Iter end, DecodeT &decoder )
     {
         auto data = make_shared<MsgT>();
 
@@ -48,14 +49,14 @@ struct DecodeHelper {
     }
 
     template<typename DecodeT, typename MsgT> static
-    DisableIf<MsgT> decode(char msgtype, const char* start, const char* end)
+    DisableIf<MsgT> decode(char msgtype, Iter& start, Iter end)
     {
         static DecodeT decoder( msgtype );
         return DecodeHelper::parse<DecodeT, MsgT>(start, end, decoder);
     }
 
     template<typename DecodeT, typename MsgT> static
-    EnableIf<MsgT> decode(char msgtype, const char* start, const char* end)
+    EnableIf<MsgT> decode(char msgtype, Iter& start, Iter end)
     {
         static DecodeT decoder_short{ MsgT::shortMsgCode };
         static DecodeT decoder_long { MsgT::longMsgCode  };
@@ -64,53 +65,48 @@ struct DecodeHelper {
     }
 };
 
+template <typename Iter>
 shared_ptr<BATSMessageBase>
-BATSMsgFactory::createMsg(char msgtype, std::string msg)
-{
-    return createMsg(msgtype, msg.data(), msg.data() + msg.size());
-}
-
-shared_ptr<BATSMessageBase>
-BATSMsgFactory::createMsg(char msgtype, const char* start, const char* end)
+BATSMsgFactory<Iter>::createMsg(char msgtype, Iter& start, Iter end)
 {
     switch (msgtype)
     {
         case 'A':
         case 'd': {
-            return DecodeHelper::decode<AddOrderMsgDecoder, BATSAddOrderMsg>( msgtype, start, end );
+            return DecodeHelper<Iter>::template decode<AddOrderMsgDecoder, BATSAddOrderMsg>( msgtype, start, end );
             break;
         }
         case 'E': {
-            return DecodeHelper::decode<OrderExecutedMsgDecoder, BATSOrderExecutedMsg>( msgtype, start, end);
+            return DecodeHelper<Iter>::template decode<OrderExecutedMsgDecoder, BATSOrderExecutedMsg>( msgtype, start, end);
             break;
         }
         case'X':{
-            return DecodeHelper::decode<OrderCancelMsgDecoder, BATSOrderCancelMsg>( msgtype, start, end);
+            return DecodeHelper<Iter>::template decode<OrderCancelMsgDecoder, BATSOrderCancelMsg>( msgtype, start, end);
             break;
         }
         case 'P':
         case 'r': {
-            return DecodeHelper::decode<TradeMsgDecoder, BATSTradeMsg>( msgtype, start, end);
+            return DecodeHelper<Iter>::template decode<TradeMsgDecoder, BATSTradeMsg>( msgtype, start, end);
             break;
         }
         case 'B': {
-            return DecodeHelper::decode<TradeBreakMsgDecoder, BATSTradeBreakMsg>( msgtype, start, end);
+            return DecodeHelper<Iter>::template decode<TradeBreakMsgDecoder, BATSTradeBreakMsg>( msgtype, start, end);
             break;
         }
         case 'H':{
-            return DecodeHelper::decode<TradingStatusMsgDecoder, BATSTradingStatusMsg>( msgtype, start, end);
+            return DecodeHelper<Iter>::template decode<TradingStatusMsgDecoder, BATSTradingStatusMsg>( msgtype, start, end);
             break;
         }
         case 'I':{
-            return DecodeHelper::decode<AuctionUpdateMsgDecoder, BATSAuctionUpdateMsg>( msgtype, start, end);
+            return DecodeHelper<Iter>::template decode<AuctionUpdateMsgDecoder, BATSAuctionUpdateMsg>( msgtype, start, end);
             break;
         }
         case 'J':{
-            return DecodeHelper::decode<AuctionSummaryMsgDecoder, BATSAuctionSummaryMsg>( msgtype, start, end);
+            return DecodeHelper<Iter>::template decode<AuctionSummaryMsgDecoder, BATSAuctionSummaryMsg>( msgtype, start, end);
             break;
         }
         case 'R':{
-            return DecodeHelper::decode<RetailPriceImproveMsgDecoder, BATSRetailPriceImproveMsg>( msgtype, start, end);
+            return DecodeHelper<Iter>::template decode<RetailPriceImproveMsgDecoder, BATSRetailPriceImproveMsg>( msgtype, start, end);
             break;
         }
         default:{
@@ -118,3 +114,12 @@ BATSMsgFactory::createMsg(char msgtype, const char* start, const char* end)
         }
     }
 }
+
+
+shared_ptr<BATSMessageBase>
+BATSMsgStringFactory::createMsg(char msgtype, const std::string& msg)
+{
+	const char* start = msg.data();
+	return BATSMsgFactory<const char*>::createMsg(msgtype, start, start + msg.size());
+}
+

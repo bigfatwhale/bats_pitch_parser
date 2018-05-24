@@ -5,6 +5,8 @@
 #ifndef PITCH_SPIRIT_BATSMESSAGEBASE_H
 #define PITCH_SPIRIT_BATSMESSAGEBASE_H
 
+#include <string>
+
 class BATSMessageBase {
 
 public:

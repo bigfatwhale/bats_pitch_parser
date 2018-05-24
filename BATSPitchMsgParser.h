@@ -5,10 +5,8 @@
 #ifndef BATS_PITCH_PARSER_BATSPITCHMSGPARSER_H
 #define BATS_PITCH_PARSER_BATSPITCHMSGPARSER_H
 
-//#define BASE_OFFSET 1
-//#define FIELD_LENGTH_TIMESTAMP 8
-
-
+#include <memory>
+#include <string>
 #include "BATSMessageBase.h"
 
 class BATSPitchMsgParser

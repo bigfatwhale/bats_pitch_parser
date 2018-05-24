@@ -19,24 +19,30 @@
 
 class BATSMessageBase;
 
+template<typename Iter>
 class BATSMsgFactory
 {
 public:
 
-    static std::shared_ptr<BATSMessageBase> createMsg( char msgtype, std::string msg );
-    static std::shared_ptr<BATSMessageBase> createMsg( char msgtype, const char* start, const char* end );
+    static std::shared_ptr<BATSMessageBase> createMsg( char msgtype, Iter& start, Iter end );
 
 private:
     // syntatic sugar...
-    using AddOrderMsgDecoder           = BATSAddOrderMsg::add_order_decoder<const char*>;
-    using OrderExecutedMsgDecoder      = BATSOrderExecutedMsg::order_executed_decoder<const char*>;
-    using OrderCancelMsgDecoder        = BATSOrderCancelMsg::order_cancel_decoder<const char*>;
-    using TradeMsgDecoder              = BATSTradeMsg::trade_decoder<const char*>;
-    using TradeBreakMsgDecoder         = BATSTradeBreakMsg::trade_break_decoder<const char*>;
-    using TradingStatusMsgDecoder      = BATSTradingStatusMsg::trading_status_decoder<const char*>;
-    using AuctionUpdateMsgDecoder      = BATSAuctionUpdateMsg::auction_update_decoder<const char*>;
-    using AuctionSummaryMsgDecoder     = BATSAuctionSummaryMsg::auction_summary_decoder<const char*>;
-    using RetailPriceImproveMsgDecoder = BATSRetailPriceImproveMsg::retail_price_improve_decoder<const char*>;
+    using AddOrderMsgDecoder           = BATSAddOrderMsg::add_order_decoder<Iter>;
+    using OrderExecutedMsgDecoder      = BATSOrderExecutedMsg::order_executed_decoder<Iter>;
+    using OrderCancelMsgDecoder        = BATSOrderCancelMsg::order_cancel_decoder<Iter>;
+    using TradeMsgDecoder              = BATSTradeMsg::trade_decoder<Iter>;
+    using TradeBreakMsgDecoder         = BATSTradeBreakMsg::trade_break_decoder<Iter>;
+    using TradingStatusMsgDecoder      = BATSTradingStatusMsg::trading_status_decoder<Iter>;
+    using AuctionUpdateMsgDecoder      = BATSAuctionUpdateMsg::auction_update_decoder<Iter>;
+    using AuctionSummaryMsgDecoder     = BATSAuctionSummaryMsg::auction_summary_decoder<Iter>;
+    using RetailPriceImproveMsgDecoder = BATSRetailPriceImproveMsg::retail_price_improve_decoder<Iter>;
+};
+
+class BATSMsgStringFactory : public BATSMsgFactory<const char*>
+{
+public:
+	static std::shared_ptr<BATSMessageBase> createMsg( char msgtype, const std::string& msg );
 };
 
 
