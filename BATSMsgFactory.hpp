@@ -1,45 +1,60 @@
-//
-// Created by Uncle Chu on 10/4/18.
-//
+#ifndef PITCH_SPIRIT_BATSMSGFACTORY_HPP
+#define PITCH_SPIRIT_BATSMSGFACTORY_HPP
 
-#include "BATSMsgFactory.h"
-#include "BATSMessageBase.h"
-#include "BATSOrderExecutedMsg.hpp"
-#include "BATSAddOrderMsg.hpp"
-#include "BATSOrderCancelMsg.hpp"
-#include "BATSTradeMsg.hpp"
-#include "BATSTradeBreakMsg.hpp"
-#include "BATSTradingStatusMsg.hpp"
-#include "BATSAuctionUpdateMsg.hpp"
-#include "BATSAuctionSummaryMsg.hpp"
-#include "BATSRetailPriceImproveMsg.hpp"
-#include <type_traits>
 #include <memory>
 #include <string>
+#include <type_traits>
+#include "BATSMessageBase.hpp"
+#include "BATSAddOrderMsg.hpp"
+#include "BATSAuctionSummaryMsg.hpp"
+#include "BATSAuctionUpdateMsg.hpp"
+#include "BATSOrderCancelMsg.hpp"
+#include "BATSOrderExecutedMsg.hpp"
+#include "BATSRetailPriceImproveMsg.hpp"
+#include "BATSTradeBreakMsg.hpp"
+#include "BATSTradeMsg.hpp"
+#include "BATSTradingStatusMsg.hpp"
 
-using namespace std;
+template<typename Iter>
+class BATSMsgFactory
+{
+public:
+
+    static std::shared_ptr<BATSMessageBase> createMsg( char msgtype, Iter& start, Iter end );
+
+private:
+    using AddOrderMsgDecoder           = BATSAddOrderMsg::add_order_decoder<Iter>;
+    using OrderExecutedMsgDecoder      = BATSOrderExecutedMsg::order_executed_decoder<Iter>;
+    using OrderCancelMsgDecoder        = BATSOrderCancelMsg::order_cancel_decoder<Iter>;
+    using TradeMsgDecoder              = BATSTradeMsg::trade_decoder<Iter>;
+    using TradeBreakMsgDecoder         = BATSTradeBreakMsg::trade_break_decoder<Iter>;
+    using TradingStatusMsgDecoder      = BATSTradingStatusMsg::trading_status_decoder<Iter>;
+    using AuctionUpdateMsgDecoder      = BATSAuctionUpdateMsg::auction_update_decoder<Iter>;
+    using AuctionSummaryMsgDecoder     = BATSAuctionSummaryMsg::auction_summary_decoder<Iter>;
+    using RetailPriceImproveMsgDecoder = BATSRetailPriceImproveMsg::retail_price_improve_decoder<Iter>;
+};
 
 // good template practice below. EnableIfAddOrder/EnableIfTradeMsg/DisableIf are used
 // for simulating template function partial specialization (not supported in C++).
 // std enable_if allows the use of SFINAE pattern which chooses the special function
 // we want to use for BATSAddOrderMsg and BATSTradeMsg. The dummy variable does the magic.
 template<typename T>
-using EnableIf  = enable_if_t<
-        is_same_v<T, BATSAddOrderMsg> | is_same_v<T, BATSTradeMsg>,
-        shared_ptr<BATSMessageBase> >;
+using EnableIf  = std::enable_if_t<
+        std::is_same_v<T, BATSAddOrderMsg> | std::is_same_v<T, BATSTradeMsg>,
+        std::shared_ptr<BATSMessageBase> >;
 
 template <typename T>
-using DisableIf = enable_if_t<
-        !( is_same_v<T, BATSAddOrderMsg> | is_same_v<T, BATSTradeMsg> ),
-        shared_ptr<BATSMessageBase> >;
+using DisableIf = std::enable_if_t<
+        !( std::is_same_v<T, BATSAddOrderMsg> | std::is_same_v<T, BATSTradeMsg> ),
+        std::shared_ptr<BATSMessageBase> >;
 
 template <typename Iter>
 struct DecodeHelper {
 
     template<typename DecodeT, typename MsgT> static
-    shared_ptr<BATSMessageBase> parse(Iter& start, Iter end, DecodeT &decoder )
+    std::shared_ptr<BATSMessageBase> parse(Iter& start, Iter end, DecodeT &decoder )
     {
-        auto data = make_shared<MsgT>();
+        auto data = std::make_shared<MsgT>();
 
         bool ret = qi::parse(start, end, decoder, *data);
         if (ret)
@@ -66,7 +81,7 @@ struct DecodeHelper {
 };
 
 template <typename Iter>
-shared_ptr<BATSMessageBase>
+std::shared_ptr<BATSMessageBase>
 BATSMsgFactory<Iter>::createMsg(char msgtype, Iter& start, Iter end)
 {
     switch (msgtype)
@@ -110,16 +125,9 @@ BATSMsgFactory<Iter>::createMsg(char msgtype, Iter& start, Iter end)
             break;
         }
         default:{
-            throw runtime_error("Error parsing message = " + string(start, end));
+            throw std::runtime_error("Error parsing message = " + std::string(start, end));
         }
     }
 }
 
-
-shared_ptr<BATSMessageBase>
-BATSMsgStringFactory::createMsg(char msgtype, const std::string& msg)
-{
-	const char* start = msg.data();
-	return BATSMsgFactory<const char*>::createMsg(msgtype, start, start + msg.size());
-}
-
+#endif //PITCH_SPIRIT_BATSMSGFACTORY_HPP

@@ -6,11 +6,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "-O3 -Wall")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -Wall")
 
-set(SOURCE_FILES BATSUtil.h BATSTradeBreakMsg.hpp BATSTradeMsg.hpp BATSTradingStatusMsg.hpp
+set(SOURCE_FILES BATSUtil.hpp BATSTradeBreakMsg.hpp BATSTradeMsg.hpp BATSTradingStatusMsg.hpp
         BATSOrderCancelMsg.hpp BATSOrderExecutedMsg.hpp BATSRetailPriceImproveMsg.hpp BATSMessageBase.cpp
-        BATSMessageBase.h BATSMsgFactory.cpp BATSMsgFactory.h BATSAddOrderMsg.hpp BATSAuctionSummaryMsg.hpp
-        BATSAuctionUpdateMsg.hpp BATSPitchMsgParser.cpp BATSPitchMsgParser.h
-		BATSPitchMsgStreamParser.h BATSPitchMsgStreamParser.cpp)
+        BATSMessageBase.hpp BATSMsgFactory.hpp BATSAddOrderMsg.hpp BATSAuctionSummaryMsg.hpp
+        BATSAuctionUpdateMsg.hpp BATSPitchMsgParser.cpp BATSPitchMsgParser.hpp)
 set(PYAPI_SOURCES BATSPythonAPI.cpp)
 
 message( STATUS "CMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME}")
@@ -94,7 +93,7 @@ ADD_CUSTOM_COMMAND(
     ${CMAKE_CURRENT_BINARY_DIR}/bats_api.so 
     ${CMAKE_CURRENT_BINARY_DIR}/tests/bats_api.so )
 
-set(TEST_FILES tests/pitch_data_100k tests/pitch_example_data ${PY_TEST_SRCS})
+set(TEST_FILES tests/pitch_data_100k tests/pitch_example_data tests/pitch_data_stream_100k ${PY_TEST_SRCS})
 foreach(testFile ${TEST_FILES})
         configure_file(${testFile} ${testFile} COPYONLY)
 endforeach(testFile)

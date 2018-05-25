@@ -8,8 +8,8 @@
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/phoenix.hpp>
 #include <boost/python.hpp>
-#include "BATSMessageBase.h"
-#include "BATSUtil.h"
+#include "BATSMessageBase.hpp"
+#include "BATSUtil.hpp"
 
 namespace qi = boost::spirit::qi;
 namespace phi = boost::phoenix;

@@ -9,7 +9,7 @@
 #include <boost/python.hpp>
 #include <boost/core/noncopyable.hpp>
 #include <sstream>
-#include "BATSMessageBase.h"
+#include "BATSMessageBase.hpp"
 
 using namespace std;
 using namespace boost::spirit;

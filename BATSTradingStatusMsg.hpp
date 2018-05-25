@@ -11,8 +11,8 @@
 #include <Python.h>
 #include <string>
 #include <sstream>
-#include "BATSMessageBase.h"
-#include "BATSUtil.h"
+#include "BATSMessageBase.hpp"
+#include "BATSUtil.hpp"
 
 namespace qi = boost::spirit::qi;
 namespace phi = boost::phoenix;

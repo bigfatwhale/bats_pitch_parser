@@ -12,7 +12,7 @@
 #include <boost/iostreams/device/mapped_file.hpp>
 #include <boost/iostreams/stream.hpp>
 
-#include "BATSPitchMsgParser.h"
+#include "BATSPitchMsgParser.hpp"
 #include "BATSTradeBreakMsg.hpp"
 #include "BATSTradingStatusMsg.hpp"
 #include "BATSRetailPriceImproveMsg.hpp"
@@ -233,6 +233,25 @@ BOOST_AUTO_TEST_SUITE( test_parse_suite )
             parser->parse_msg(line);
         }
 		ifs.close();
+        myfile.close();
+    }
+
+    BOOST_AUTO_TEST_CASE( test_load_data_stream_100k )
+    {
+		typedef mapped_file_source::iterator mIter;
+
+        mapped_file_source myfile("pitch_data_stream_100k");
+        BOOST_TEST(myfile.is_open());
+
+        auto parser = std::make_unique<BATSPitchMsgParser>();
+
+		mIter next = myfile.begin();
+		mIter end = myfile.end();
+
+		while (next != end)
+        {
+            parser->parse_msg(next, end);
+        }
         myfile.close();
     }
 

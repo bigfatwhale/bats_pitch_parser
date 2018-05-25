@@ -12,8 +12,8 @@
 #include "BATSAuctionUpdateMsg.hpp"
 #include "BATSAuctionSummaryMsg.hpp"
 #include "BATSAddOrderMsg.hpp"
-#include "BATSMessageBase.h"
-#include "BATSPitchMsgParser.h"
+#include "BATSMessageBase.hpp"
+#include "BATSPitchMsgParser.hpp"
 
 BOOST_PYTHON_MODULE(bats_api)
 {
